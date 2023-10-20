@@ -11,17 +11,13 @@ const initialState = {
 const staffReducer = (state = initialState, action) => {
   switch (action.type) {
     case "SELECT_STAFF":
-      const schedule = action.payload;
-      return {
-        ...state,
-        selectedStaff: {
-          ...state.selectedStaff,
-          [schedule.day]: [
-            ...(state.selectedStaff[schedule.day] || []),
-            { [schedule.newValue]: schedule.index },
-          ],
-        },
-      };
+      const updatedState = { ...state };
+      const payload = action.payload;
+
+      for (const key in payload) {
+        updatedState.selectedStaff[key] = action.payload[key];
+      }
+      return updatedState;
     default:
       return state;
   }

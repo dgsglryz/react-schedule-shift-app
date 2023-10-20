@@ -9,6 +9,7 @@ const MainPage = () => {
   const handleCalculate = (data) => {
     setCalculatedData(data);
     setCalculationsDone(true);
+    console.log("data", data);
   };
 
   return (

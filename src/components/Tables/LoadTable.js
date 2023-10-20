@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { tableHeaders, loadTableData } from "../utils/helper";
 
 const LoadTable = ({ data, calculationsDone }) => {
+  console.log({ data });
   const [filteredLoadTableData, setFilteredLoadTableData] = useState(
     loadTableData.filter((staffMember) => staffMember.StaffMember !== null)
   );
@@ -13,16 +14,18 @@ const LoadTable = ({ data, calculationsDone }) => {
   }, [data]);
 
   const calculateTotalWorkedDays = (staffMember) => {
+    if (!calculationsDone || !data) {
+      return 0;
+    }
+
     let totalWorkedDays = 0;
 
-    if (calculationsDone && data) {
-      for (const day of tableHeaders.scheduleTable.days) {
-        if (
-          data[day] &&
-          data[day].find((item) => item[staffMember] !== undefined)
-        ) {
-          totalWorkedDays++;
-        }
+    for (const day of tableHeaders.scheduleTable.days) {
+      if (data[day]) {
+        const staffMemberItems = data[day].filter(
+          (item) => item["employeeName"] === staffMember
+        );
+        totalWorkedDays += staffMemberItems.length;
       }
     }
 
@@ -50,7 +53,7 @@ const LoadTable = ({ data, calculationsDone }) => {
                 {data &&
                 data[day] &&
                 data[day].find(
-                  (item) => item[staffMember.StaffMember] !== undefined
+                  (item) => item["employeeName"] === staffMember.StaffMember
                 )
                   ? "Y"
                   : "-"}

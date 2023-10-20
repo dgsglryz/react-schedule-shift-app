@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   tableHeaders,
   scheduleTableData,
   dropdownOptions,
+  hasLunchWithSameValue,
+  groupObjectsByDay,
 } from "../utils/helper";
 import Dropdown from "../Dropdown/Dropdown";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,20 +13,26 @@ import { selectStaff } from "../Redux/staffActions.js";
 const ScheduleTable = ({ onCalculate }) => {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const selectedStaff = useSelector((state) => state.staff.selectedStaff);
+
+  const [staff, setStaff] = useState([]);
   const dispatch = useDispatch();
-  const handleScheduleOptionChange = (day, newValue, index) => {
-    dispatch(selectStaff({ day, newValue, index }));
+
+  const handleScheduleOptionChange = (day, employeeName, index) => {
+    const newStaffObject = {
+      day,
+      employeeName,
+      index: scheduleTableData[index],
+    };
+    setStaff([...staff, newStaffObject]);
   };
 
-  const calculateTotal = (staffMember) => {
-    let total = 0;
-    for (const day of Object.keys(selectedStaff)) {
-      total += selectedStaff[day][staffMember] === "" ? 0 : 1;
-    }
-    return total;
-  };
+  useEffect(() => {
+    hasLunchWithSameValue(staff);
+  }, [staff]);
 
   const handleCalculate = (event, selectedStaff) => {
+    const staffSchedule = groupObjectsByDay(staff);
+    dispatch(selectStaff(staffSchedule));
     onCalculate(selectedStaff);
   };
 
@@ -43,9 +51,9 @@ const ScheduleTable = ({ onCalculate }) => {
           </tr>
         </thead>
         <tbody>
-          {scheduleTableData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td>{row.TimeSlot}</td>
+          {scheduleTableData.map((tableData, index) => (
+            <tr key={index}>
+              <td>{tableData}</td>
               {days.map((day, dayIndex) => (
                 <td key={dayIndex}>
                   {day === "Time Slot" ? (
@@ -54,11 +62,7 @@ const ScheduleTable = ({ onCalculate }) => {
                     <Dropdown
                       options={dropdownOptions}
                       onChange={(e) =>
-                        handleScheduleOptionChange(
-                          day,
-                          e.target.value,
-                          rowIndex
-                        )
+                        handleScheduleOptionChange(day, e.target.value, index)
                       }
                     />
                   )}

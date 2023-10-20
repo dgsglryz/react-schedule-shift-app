@@ -22,41 +22,93 @@ export const loadTableData = staffMembers.map((staffMember) => {
 });
 
 export const scheduleTableData = [
-  {
-    TimeSlot: "Morning UpStairs",
-  },
-  {
-    TimeSlot: "Morning Down Stairs",
-  },
-  {
-    TimeSlot: "Morning Parking Lot",
-  },
-  {
-    TimeSlot: "LunchA",
-  },
-  {
-    TimeSlot: "LunchB",
-  },
-  {
-    TimeSlot: "LunchC",
-  },
-  {
-    TimeSlot: "LunchD",
-  },
-  {
-    TimeSlot: "Afternoon Up Stairs",
-  },
-  {
-    TimeSlot: "Afternoon Down Stairs",
-  },
-  {
-    TimeSlot: "Afternoon Parking Lot",
-  },
-].map((row) => {
-  tableHeaders.scheduleTable.days.forEach((day) => {
-    row[day] = "";
-  });
-  return row;
-});
+  "Morning UpStairs",
+  "Morning Down Stairs",
+  "Morning Parking Lot",
+  "LunchA",
+  "LunchB",
+  "LunchC",
+  "LunchD",
+  "Afternoon Up Stairs",
+  "Afternoon Down Stairs",
+  "Afternoon Parking Lot",
+];
+
+export const handleCalculateConflict = (staffObject) => {
+  for (const key in staffObject) {
+    if (Object.hasOwnProperty.call(staffObject, key)) {
+      const test1 = Object.values(staffObject[key]);
+
+      console.log("zzzz", test1);
+    }
+  }
+};
+
+export const groupObjectsByDay = (data) => {
+  const groupedData = {};
+
+  for (const item of data) {
+    const { day } = item;
+    if (!groupedData[day]) {
+      groupedData[day] = [];
+    }
+    groupedData[day].push(item);
+  }
+
+  return groupedData;
+};
+
+export const hasLunchWithSameValue = (data) => {
+  // Create an object to keep track of unique "employeeName" values that have "Lunch" in their "index"
+  let lunchSchedule = {};
+  let normalSchedule = [];
+  console.log({ data });
+  for (const item of data) {
+    if (item.index.includes("Lunch")) {
+      if (lunchSchedule[item.employeeName] === item.day) {
+        alert(`${item.employeeName} employee must have only 1 lunch`);
+        return;
+      } else {
+        lunchSchedule = { ...lunchSchedule, [item.employeeName]: item.day };
+      }
+    } else {
+      normalSchedule = [...normalSchedule, { [item.day]: item.employeeName }];
+    }
+    console.log({ normalSchedule });
+    console.log({ lunchSchedule });
+  }
+  return false; // No match found
+};
+
+//old
+export const checkForMultipleLunch = (staffObject, employeeName) => {
+  // Initialize an object to store lunch counts for each day
+  const lunchCounts = {};
+
+  // Loop through each day in the schedule
+  for (const day in staffObject) {
+    // Initialize lunch count for the current day
+    let lunchCount = 0;
+
+    // Loop through the objects in the day's array
+    for (const entry of staffObject[day]) {
+      // Check if any property (key) in the object has the value "Lunch"
+      for (const key in entry) {
+        if (entry[key].includes("Lunch")) {
+          lunchCount++;
+        }
+      }
+    }
+
+    // Store the lunch count for the current day
+    lunchCounts[day] = lunchCount;
+
+    // Check if lunch count is greater than 1
+    if (lunchCount > 1) {
+      alert(`Alert: Multiple lunches found for ${day}`);
+      break;
+    }
+  }
+};
 
 export const dropdownOptions = staffMembers;
