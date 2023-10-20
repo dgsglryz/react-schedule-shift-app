@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { tableHeaders, loadTableData } from "../utils/helper";
 
 const LoadTable = ({ data, calculationsDone }) => {
-  console.log({ data });
   const [filteredLoadTableData, setFilteredLoadTableData] = useState(
     loadTableData.filter((staffMember) => staffMember.StaffMember !== null)
   );

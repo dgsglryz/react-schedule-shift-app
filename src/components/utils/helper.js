@@ -38,8 +38,6 @@ export const handleCalculateConflict = (staffObject) => {
   for (const key in staffObject) {
     if (Object.hasOwnProperty.call(staffObject, key)) {
       const test1 = Object.values(staffObject[key]);
-
-      console.log("zzzz", test1);
     }
   }
 };
@@ -62,19 +60,18 @@ export const hasLunchWithSameValue = (data) => {
   let shiftLocations = {};
   let lunchSchedule = {};
   let normalSchedule = {};
-  console.log({ data });
 
   for (const item of data) {
     const { employeeName, day, index } = item;
 
-    if (index.includes("Lunch")) {
+    if (typeof index === "string" && index.includes("Lunch")) {
       if (lunchSchedule[employeeName] === day) {
         alert(`${employeeName} employee must have only 1 lunch on ${day}`);
-        return true; // Return true to indicate a problem
+        return true;
       } else {
         lunchSchedule[employeeName] = day;
       }
-    } else {
+    } else if (typeof index === "string") {
       if (!shiftLocations[employeeName]) {
         shiftLocations[employeeName] = {};
       }
@@ -103,18 +100,18 @@ export const hasLunchWithSameValue = (data) => {
       }
 
       if (!normalSchedule[employeeName]) {
-        normalSchedule[employeeName] = 1; // Initialize the count
+        normalSchedule[employeeName] = 1;
       } else {
         normalSchedule[employeeName]++;
         if (normalSchedule[employeeName] > 2) {
           alert(`${employeeName} employee must not have more than 2 shifts`);
-          return true; // Return true to indicate a problem
+          return true;
         }
       }
     }
   }
 
-  return false; // Return false if no problems found
+  return false;
 };
 
 export const checkForMultipleLunch = (staffObject, employeeName) => {

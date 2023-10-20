@@ -5,6 +5,8 @@ import {
   dropdownOptions,
   hasLunchWithSameValue,
   groupObjectsByDay,
+  // staffMembers,
+  // checkForMultipleLunch,
 } from "../utils/helper";
 import Dropdown from "../Dropdown/Dropdown";
 import { useSelector, useDispatch } from "react-redux";
@@ -18,7 +20,6 @@ const ScheduleTable = ({ onCalculate }) => {
   const [warning, setWarning] = useState("");
   const dispatch = useDispatch();
 
-  // Function to count the shifts for a staff member
   const countShiftsForStaffMember = (staff, employeeName) => {
     return staff.filter((item) => item.employeeName === employeeName).length;
   };
@@ -64,6 +65,77 @@ const ScheduleTable = ({ onCalculate }) => {
     onCalculate(selectedStaff);
   };
 
+  // const handleRandomPopulate = () => {
+  //   const populatedStaff = [];
+  //   const availableShifts = [...scheduleTableData.keys()];
+  //   const staffMembersCopy = [...staffMembers];
+
+  //   for (let i = staffMembersCopy.length - 1; i > 0; i--) {
+  //     const j = Math.floor(Math.random() * (i + 1));
+  //     [staffMembersCopy[i], staffMembersCopy[j]] = [
+  //       staffMembersCopy[j],
+  //       staffMembersCopy[i],
+  //     ];
+  //   }
+
+  //   for (const day of days) {
+  //     for (const shift of scheduleTableData) {
+  //       if (availableShifts.length === 0) {
+  //         populatedStaff.length = 0;
+  //         break;
+  //       }
+
+  //       const randomIndex =
+  //         availableShifts[Math.floor(Math.random() * availableShifts.length)];
+  //       const randomEmployee = staffMembersCopy.pop();
+
+  //       if (countShiftsForStaffMember(populatedStaff, randomEmployee) >= 7) {
+  //         staffMembersCopy.push(randomEmployee);
+  //         continue;
+  //       }
+
+  //       handleScheduleOptionChange(day, randomEmployee, randomIndex);
+
+  //       if (
+  //         hasLunchWithSameValue([
+  //           ...populatedStaff,
+  //           {
+  //             day,
+  //             employeeName: randomEmployee,
+  //             index: scheduleTableData[randomIndex],
+  //           },
+  //         ]) ||
+  //         checkForMultipleLunch(
+  //           groupObjectsByDay(populatedStaff),
+  //           randomEmployee
+  //         )
+  //       ) {
+  //         staffMembersCopy.push(randomEmployee);
+  //       } else {
+  //         populatedStaff.push({
+  //           day,
+  //           employeeName: randomEmployee,
+  //           index: scheduleTableData[randomIndex],
+  //         });
+
+  //         availableShifts.splice(availableShifts.indexOf(randomIndex), 1);
+  //       }
+  //     }
+  //   }
+
+  //   setStaff(populatedStaff);
+  // };
+
+  const handleClearAllShifts = () => {
+    setStaff([]);
+    setWarning("");
+
+    const dropdowns = document.querySelectorAll("select");
+    dropdowns.forEach((dropdown) => {
+      dropdown.selectedIndex = 0;
+    });
+  };
+
   return (
     <div>
       {warning && <div className="warning">{warning}</div>}
@@ -104,6 +176,8 @@ const ScheduleTable = ({ onCalculate }) => {
       <button onClick={(event) => handleCalculate(event, selectedStaff)}>
         Calculate
       </button>
+      {/* <button onClick={handleRandomPopulate}>Randomly Populate</button> */}
+      <button onClick={handleClearAllShifts}>Clear All Shifts</button>
     </div>
   );
 };
