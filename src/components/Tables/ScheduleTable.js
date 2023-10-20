@@ -15,19 +15,47 @@ const ScheduleTable = ({ onCalculate }) => {
   const selectedStaff = useSelector((state) => state.staff.selectedStaff);
 
   const [staff, setStaff] = useState([]);
+  const [warning, setWarning] = useState("");
   const dispatch = useDispatch();
 
+  // Function to count the shifts for a staff member
+  const countShiftsForStaffMember = (staff, employeeName) => {
+    return staff.filter((item) => item.employeeName === employeeName).length;
+  };
+
   const handleScheduleOptionChange = (day, employeeName, index) => {
-    const newStaffObject = {
-      day,
-      employeeName,
-      index: scheduleTableData[index],
-    };
-    setStaff([...staff, newStaffObject]);
+    // Check if the staff member has more than 7 shifts
+    if (countShiftsForStaffMember(staff, employeeName) >= 7) {
+      setWarning(
+        "Warning: Staff member has reached the maximum of 7 shifts per week."
+      );
+      return;
+    }
+
+    if (
+      hasLunchWithSameValue([
+        ...staff,
+        { day, employeeName, index: scheduleTableData[index] },
+      ])
+    ) {
+      setWarning(
+        "Warning: Lunch with the same value already selected. This selection will be removed."
+      );
+      setStaff(staff.slice(0, staff.length - 1));
+    } else {
+      setWarning("");
+      const newStaffObject = {
+        day,
+        employeeName,
+        index: scheduleTableData[index],
+      };
+      setStaff([...staff, newStaffObject]);
+    }
   };
 
   useEffect(() => {
-    hasLunchWithSameValue(staff);
+    hasLunchWithSameValue(staff) &&
+      setWarning("Warning: Lunch with the same value already selected.");
   }, [staff]);
 
   const handleCalculate = (event, selectedStaff) => {
@@ -38,6 +66,7 @@ const ScheduleTable = ({ onCalculate }) => {
 
   return (
     <div>
+      {warning && <div className="warning">{warning}</div>}
       <table>
         <caption>Schedule</caption>
         <thead>

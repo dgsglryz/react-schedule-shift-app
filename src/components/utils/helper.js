@@ -59,40 +59,71 @@ export const groupObjectsByDay = (data) => {
 };
 
 export const hasLunchWithSameValue = (data) => {
-  // Create an object to keep track of unique "employeeName" values that have "Lunch" in their "index"
+  let shiftLocations = {};
   let lunchSchedule = {};
-  let normalSchedule = [];
+  let normalSchedule = {};
   console.log({ data });
+
   for (const item of data) {
-    if (item.index.includes("Lunch")) {
-      if (lunchSchedule[item.employeeName] === item.day) {
-        alert(`${item.employeeName} employee must have only 1 lunch`);
-        return;
+    const { employeeName, day, index } = item;
+
+    if (index.includes("Lunch")) {
+      if (lunchSchedule[employeeName] === day) {
+        alert(`${employeeName} employee must have only 1 lunch on ${day}`);
+        return true; // Return true to indicate a problem
       } else {
-        lunchSchedule = { ...lunchSchedule, [item.employeeName]: item.day };
+        lunchSchedule[employeeName] = day;
       }
     } else {
-      normalSchedule = [...normalSchedule, { [item.day]: item.employeeName }];
+      if (!shiftLocations[employeeName]) {
+        shiftLocations[employeeName] = {};
+      }
+
+      if (
+        shiftLocations[employeeName][day] &&
+        shiftLocations[employeeName][day].includes("Morning") &&
+        index.includes("Morning")
+      ) {
+        alert(`${employeeName} cannot have multiple morning shifts on ${day}`);
+        return true;
+      } else if (
+        shiftLocations[employeeName][day] &&
+        shiftLocations[employeeName][day].includes("Afternoon") &&
+        index.includes("Afternoon")
+      ) {
+        alert(
+          `${employeeName} cannot have multiple afternoon shifts on ${day}`
+        );
+        return true;
+      } else {
+        if (!shiftLocations[employeeName][day]) {
+          shiftLocations[employeeName][day] = "";
+        }
+        shiftLocations[employeeName][day] += index;
+      }
+
+      if (!normalSchedule[employeeName]) {
+        normalSchedule[employeeName] = 1; // Initialize the count
+      } else {
+        normalSchedule[employeeName]++;
+        if (normalSchedule[employeeName] > 2) {
+          alert(`${employeeName} employee must not have more than 2 shifts`);
+          return true; // Return true to indicate a problem
+        }
+      }
     }
-    console.log({ normalSchedule });
-    console.log({ lunchSchedule });
   }
-  return false; // No match found
+
+  return false; // Return false if no problems found
 };
 
-//old
 export const checkForMultipleLunch = (staffObject, employeeName) => {
-  // Initialize an object to store lunch counts for each day
   const lunchCounts = {};
 
-  // Loop through each day in the schedule
   for (const day in staffObject) {
-    // Initialize lunch count for the current day
     let lunchCount = 0;
 
-    // Loop through the objects in the day's array
     for (const entry of staffObject[day]) {
-      // Check if any property (key) in the object has the value "Lunch"
       for (const key in entry) {
         if (entry[key].includes("Lunch")) {
           lunchCount++;
@@ -100,10 +131,8 @@ export const checkForMultipleLunch = (staffObject, employeeName) => {
       }
     }
 
-    // Store the lunch count for the current day
     lunchCounts[day] = lunchCount;
 
-    // Check if lunch count is greater than 1
     if (lunchCount > 1) {
       alert(`Alert: Multiple lunches found for ${day}`);
       break;
